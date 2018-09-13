@@ -7,12 +7,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.AbstractVerticle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Date;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import static java.util.Objects.nonNull;
 
+/**
+ * Security represents main module class.
+ */
 public class SecurityVerticle extends AbstractVerticle {
     private final Logger log = LoggerFactory.getLogger(SecurityVerticle.class.getName());
 
@@ -74,7 +76,7 @@ public class SecurityVerticle extends AbstractVerticle {
     private void buildMqttClient() throws Exception {
         client = new Client(MODULE_ID, BROKER_HOST, BROKER_PORT);
         client.connect();
-        client.setProcessor(consumer);
-        client.subscribe(INBOUND);
+        if (!client.isConnected()) return;
+        client.setEventHandler(consumer).subscribe(INBOUND);
     }
 }

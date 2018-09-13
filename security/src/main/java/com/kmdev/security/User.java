@@ -2,21 +2,24 @@ package com.kmdev.security;
 
 import io.vertx.core.json.JsonObject;
 
+/**
+ * User class is Pojo.
+ */
 public class User {
 
-    public String username = "";
+    String username = "";
 
-    public String email = "";
+    String email = "";
 
-    public String password = "";
+    String password = "";
 
-    public String role = "";
+    String role = "";
 
-    public static User build() {
+    static User build() {
         return new User();
     }
 
-    public User fromJson(JsonObject json) {
+    User fromJson(JsonObject json) {
         this.username = json.getString("username", "");
         this.password = json.getString("password", "");
         this.role = json.getString("role", "");
@@ -24,7 +27,7 @@ public class User {
         return this;
     }
 
-    public JsonObject toJson() {
+    JsonObject toJson() {
         return new JsonObject()
             .put("username", username)
             .put("role", role)

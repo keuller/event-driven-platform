@@ -2,19 +2,23 @@ package com.kmdev.security;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import static java.util.Objects.requireNonNull;
 
+/**
+ * User service class provides business functions to handle users.
+ *
+ * @author keuller.magalhaes at gmail.com
+ */
 public final class UserService {
 
-    private List<User> userList = new ArrayList<>(3);
+    private List<User> userList = new ArrayList<>(2);
 
-    public UserService() {
+    UserService() {
         User user = User.build();
         user.username = "Dudu";
         user.password = "abc123";
@@ -30,32 +34,34 @@ public final class UserService {
         userList.add(user);
     }
 
-    public final Function<JsonObject, JsonObject> authenticate = (json) -> {
+    final Function<JsonObject, JsonObject> authenticate = (json) -> {
+        requireNonNull(json);
         final String usr = json.getString("username");
         final String pwd = json.getString("password");
         Optional<User> user = userList.stream().filter(
-                item -> item.username.equalsIgnoreCase(usr) && item.password.equals(pwd)
+            item -> item.username.equalsIgnoreCase(usr) && item.password.equals(pwd)
         ).findFirst();
         return (user.isPresent() ? user.get().toJson() : new JsonObject().put("message", "User not found."));
     };
 
-    public final Function<JsonObject, JsonObject> createUser = (json) -> {
+    final Function<JsonObject, JsonObject> createUser = (json) -> {
+        requireNonNull(json);
         final User user = User.build().fromJson(json);
         if ("".equals(user.email) || "".equals(user.role)) return new JsonObject().put("message", "Invalid user data.");
         userList.add(user);
         return new JsonObject().put("message", "User has been created.");
     };
 
-    public final Function<String, JsonObject> findByEmail = (mail) -> {
-        Objects.requireNonNull(mail);
+    final Function<String, JsonObject> findByEmail = (mail) -> {
+        requireNonNull(mail);
         Optional<User> user = userList.stream().filter(item -> item.email.equalsIgnoreCase(mail)).findFirst();
         return (user.isPresent() ? user.get().toJson() : new JsonObject().put("message", "User not found."));
     };
 
-    public final Supplier<JsonObject> findAll = () -> {
+    final Supplier<JsonObject> findAll = () -> {
         final JsonArray users = new JsonArray();
         userList.stream().forEach(user -> users.add(user.toJson()));
         return new JsonObject().put("users", users);
     };
-    
+
 }
