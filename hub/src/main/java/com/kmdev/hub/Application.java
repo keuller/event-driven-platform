@@ -19,7 +19,7 @@ public class Application {
             vertx.close();
         }));
 
-        Single<String> eventRouter = RxHelper.deployVerticle(vertx, new Dispatcher());
+        Single<String> eventRouter = RxHelper.deployVerticle(vertx, new DispatcherVerticle());
         Single<String> proxyServer = RxHelper.deployVerticle(vertx, new ProxyVerticle());
         Single.concat(eventRouter, proxyServer).count()
             .subscribe(val -> log.info("Hub Application has been started."), err -> System.exit(-1));

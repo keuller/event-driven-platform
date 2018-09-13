@@ -31,6 +31,12 @@ public final class ProxyVerticle extends AbstractVerticle {
 
     private static final List<String> EVENT_TYPES = Arrays.asList("monitor", "security", "processor", "exporter");
 
+    private static final String BROKER_HOST = System.getenv().getOrDefault("BROKER_HOST", "localhost");
+
+    private static final int BROKER_PORT = Integer.parseInt(System.getenv().getOrDefault("BROKER_PORT", "1883"));
+
+    private static final String CLIENT_ID = Message.module("proxy");
+
     private Client client;
 
     private final BehaviorSubject<String> response$ = BehaviorSubject.create();
@@ -69,11 +75,10 @@ public final class ProxyVerticle extends AbstractVerticle {
     private final Consumer<String> outboundConsumer = (str) -> response$.onNext(str);
 
     private void buildMqttClient() throws Exception {
-        client = new Client(Message.module("proxy"), "localhost", 1883);
+        client = new Client(CLIENT_ID, BROKER_HOST, BROKER_PORT);
         client.connect();
         if (!client.isConnected()) return;
-        client.setProcessor(outboundConsumer);
-        client.subscribe(Topics.OUTBOUND);
+        client.setEventHandler(outboundConsumer).subscribe(Topics.OUTBOUND);
     }
 
     private final Handler<RoutingContext> healthHandler = (ctx) -> {

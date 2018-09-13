@@ -46,17 +46,19 @@ public final class Client implements MqttCallback {
 
     public boolean isConnected() { return connected; }
 
-    public void setProcessor(Consumer<String> bean) {
+    public Client setEventHandler(Consumer<String> bean) {
         this.processor = bean;
+        return this;
     }
 
-    public void connect() {
+    public Client connect() {
         try {
             this.client.connect(opts);
             this.connected = true;
         } catch (MqttException ex) {
             log.error(ex.getMessage());
         }
+        return this;
     }
 
     public void disconnect() {

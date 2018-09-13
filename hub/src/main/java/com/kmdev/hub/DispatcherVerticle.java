@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Properties;
 
-public class Dispatcher extends AbstractVerticle {
-    private final Logger log = LoggerFactory.getLogger(Dispatcher.class.getName());
+public class DispatcherVerticle extends AbstractVerticle {
+    private final Logger log = LoggerFactory.getLogger(DispatcherVerticle.class.getName());
 
     private final Server broker = new Server();
 

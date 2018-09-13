@@ -43,8 +43,8 @@ public final class MonitorVerticle extends AbstractVerticle {
     private void buildMqttClient() throws Exception {
         client = new Client(CLIENT_ID, BROKER_HOST, BROKER_PORT);
         client.connect();
-        client.setProcessor(str -> log.info("Message payload: ".concat(str)));
-        client.subscribe(TOPIC);
+        if (!client.isConnected()) return;
+        client.setEventHandler(str -> log.info("Monitoring message: ".concat(str))).subscribe(TOPIC);
     }
 
 }
