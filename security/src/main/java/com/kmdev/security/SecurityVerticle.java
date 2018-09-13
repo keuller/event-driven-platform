@@ -33,14 +33,16 @@ public class SecurityVerticle extends AbstractVerticle {
     private Client client;
 
     private BiFunction<String, JsonObject, JsonObject> processCommand = (cmd, data) -> {
-        switch(cmd) {
-            case "auth": return service.authenticate.apply(data);
-            case "create": {
-                client.publish(MONITOR, new JsonObject().put("command", "create_user").put("username", data.getString("username")).put("timestamp", new Date().toString()).encode());
-                return service.createUser.apply(data);
-            }
-            default: return new JsonObject().put("message", "Invalid command.");
-        }
+      switch(cmd) {
+          case "auth": return service.authenticate.apply(data);
+          case "create": {
+              client.publish(MONITOR, new JsonObject().put("command", "create_user").put("username", data.getString("username")).put("timestamp", new Date().toString()).encode());
+              return service.createUser.apply(data);
+          }
+          case "findByEmail": return service.findByEmail.apply(data.getString("email"));
+          case "findAll": return service.findAll.get();
+          default: return new JsonObject().put("message", "Invalid command.");
+      }
     };
 
     private Consumer<String> consumer = (payload) -> {

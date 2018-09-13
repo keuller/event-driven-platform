@@ -1,11 +1,14 @@
 package com.kmdev.security;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class UserService {
 
@@ -43,4 +46,16 @@ public final class UserService {
         return new JsonObject().put("message", "User has been created.");
     };
 
+    public final Function<String, JsonObject> findByEmail = (mail) -> {
+        Objects.requireNonNull(mail);
+        Optional<User> user = userList.stream().filter(item -> item.email.equalsIgnoreCase(mail)).findFirst();
+        return (user.isPresent() ? user.get().toJson() : new JsonObject().put("message", "User not found."));
+    };
+
+    public final Supplier<JsonObject> findAll = () -> {
+        final JsonArray users = new JsonArray();
+        userList.stream().forEach(user -> users.add(user.toJson()));
+        return new JsonObject().put("users", users);
+    };
+    
 }
