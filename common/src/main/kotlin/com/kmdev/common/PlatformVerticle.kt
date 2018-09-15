@@ -3,7 +3,7 @@ package com.kmdev.common
 import io.vertx.reactivex.core.AbstractVerticle
 import java.util.function.Consumer
 
-class PlatformVerticle : AbstractVerticle() {
+open class PlatformVerticle : AbstractVerticle() {
 
     internal val BROKER_HOST = (System.getenv() as Map<String, String>).getOrDefault("BROKER_HOST", "localhost")
 
@@ -13,7 +13,7 @@ class PlatformVerticle : AbstractVerticle() {
 
     lateinit var connectorName: String
 
-    fun connect(topic: String, handler: Consumer<String>) {
+    fun connect(topic: String, handler: (value: String) -> Unit) {
         connector = Connector(connectorName, BROKER_HOST, BROKER_PORT.toInt())
         connector.connect()
         if (!connector.isConnected()) return

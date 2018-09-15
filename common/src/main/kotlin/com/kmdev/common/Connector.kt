@@ -35,7 +35,7 @@ class Connector(name: String, host: String, port: Int) : MqttCallback {
 
     private val options = MqttConnectOptions()
 
-    private lateinit var handler: Consumer<String>
+    private lateinit var handler: (msg: String) -> Unit
 
     init {
         options.connectionTimeout = 5000
@@ -49,7 +49,7 @@ class Connector(name: String, host: String, port: Int) : MqttCallback {
         }
     }
 
-    fun eventHandler(evtHandler: Consumer<String>): Connector {
+    fun eventHandler(evtHandler: (msg: String) -> Unit): Connector {
         this.handler = evtHandler
         return this
     }
@@ -100,7 +100,7 @@ class Connector(name: String, host: String, port: Int) : MqttCallback {
     }
 
     override fun messageArrived(id: String?, message: MqttMessage?) {
-        this.handler.accept(String(message!!.payload, Charset.defaultCharset()))
+        this.handler.invoke(String(message!!.payload, Charset.defaultCharset()))
     }
 
     override fun connectionLost(error: Throwable?) {
