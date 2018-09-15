@@ -1,13 +1,13 @@
 package com.kmdev.hub
 
-import com.kmdev.common.PlatformVerticle
 import io.moquette.server.Server
 import io.vertx.core.Future
+import io.vertx.reactivex.core.AbstractVerticle
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.util.*
 
-class MessagingVerticle : PlatformVerticle() {
+class MessagingVerticle : AbstractVerticle() {
     private val log = LoggerFactory.getLogger(MessagingVerticle::class.java.getName())
 
     private val broker = Server()
@@ -25,7 +25,6 @@ class MessagingVerticle : PlatformVerticle() {
             log.error(ex.message)
             future.fail(ex)
         }
-
     }
 
     override fun stop(future: Future<Void>) {

@@ -3,6 +3,7 @@ package com.kmdev.hub
 import com.kmdev.common.PlatformVerticle
 import com.kmdev.common.genMessageId
 import com.kmdev.common.moduleName
+import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import io.vertx.core.Future
 import io.vertx.core.Handler
@@ -27,16 +28,15 @@ class ProxyVerticle : PlatformVerticle() {
     private val response = BehaviorSubject.create<String>()
 
     override fun start(future: Future<Void>) {
-        val routes = createRouter()
-
         connectorName = moduleName("proxy")
         connect(OUTBOUND) { msg -> response.onNext(msg) }
 
+        val routes = createRouter()
         vertx.createHttpServer()
                 .requestHandler { routes.accept(it) }
                 .rxListen(8080, "localhost")
-                .doOnSuccess { _ -> future.complete() }
                 .doOnError { err -> future.fail(err) }
+                .doOnSuccess { _ -> future.complete() }
                 .subscribe()
     }
 
@@ -45,30 +45,24 @@ class ProxyVerticle : PlatformVerticle() {
         future.complete()
     }
 
-    private fun createRouter(): Router {
-        val router = Router.router(vertx)
-        router.route().handler { BodyHandler.create() }
-        router.route().failureHandler { handlerError }
-        router.apply {
-            get("/").handler(handlerIndex)
-            get("/health").handler(handlerHealth).produces(JSON_TYPE)
-            post("/event").handler(handlerEvent).produces(JSON_TYPE)
-        }
-        return router
+    private fun createRouter() = Router.router(vertx).apply {
+        route().handler(BodyHandler.create())
+        route().failureHandler(handlerError)
+        get("/").handler(handlerIndex)
+        get("/health").handler(handlerHealth).produces(JSON_TYPE)
+        post("/event").handler(handlerEvent).produces(JSON_TYPE)
     }
 
-    val handlerError = Handler<RoutingContext> { req ->
-        req.response().apply {
-            statusCode = 500
-            end("Ops! Something goes wrong.")
-        }
+    val handlerError = Handler<RoutingContext> { req->
+        req.response().statusCode = 500
+        req.response().statusMessage = "Ops! Something goes wrong."
     }
 
-    val handlerIndex = Handler<RoutingContext> { req ->
+    private val handlerIndex = Handler<RoutingContext> { req ->
         req.response().end("Proxy!")
     }
 
-    val handlerEvent = Handler<RoutingContext> { req ->
+    private val handlerEvent = Handler<RoutingContext> { req ->
         val data = req.bodyAsJson
         if (isInvalid(data)) {
             log.warn("Invalid payload data ${data.encode()}")
@@ -94,19 +88,18 @@ class ProxyVerticle : PlatformVerticle() {
         val messageId = genMessageId()
         connector.publish(topicName, data.put("id", messageId).encode())
 
-        val reply = response.map { msg -> JsonObject(msg) }
-                .timeout(2L, TimeUnit.SECONDS)
+        val reply = response.timeout(2L, TimeUnit.SECONDS)
+                .map { msg -> JsonObject(msg) }
                 .filter { json -> messageId.equals(json.getString("id"), true) }
                 .subscribeOn(RxHelper.scheduler(vertx))
-                .take(1)
-                .singleOrError()
+                .take(1).singleOrError()
 
         reply.doOnError { err -> fail(req.response(), err.message) }
-                .doOnSuccess { json -> req.response().endWithJson(json) }
+                .doOnSuccess { json -> json.remove("id"); req.response().endWithJson(json) }
                 .subscribe()
     }
 
-    val handlerHealth = Handler<RoutingContext> { req ->
+    private val handlerHealth = Handler<RoutingContext> { req ->
         val dt = Date().toInstant().toString()
         req.response().endWithJson(mapOf("code" to "0", "message" to "OK", "date_time" to dt))
     }
