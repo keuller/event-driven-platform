@@ -6,11 +6,11 @@ import io.vertx.reactivex.core.http.HttpServerResponse
 
 val EVENT_TYPES = listOf("monitor", "security", "processor", "exporter")
 
-fun isInvalid(json: JsonObject) = json?.getString("type").isEmpty() || !json.containsKey("payload")
+fun isInvalidPayload(json: JsonObject) = json?.getString("type").isEmpty() || !json.containsKey("payload")
 
 fun notCommand(json: JsonObject) = json.getString("command").isEmpty()
 
-fun isInvalidType(type: String) = !EVENT_TYPES.contains(type)
+fun isInvalidType(json: JsonObject) = !EVENT_TYPES.contains(json.getString("type"))
 
 fun notAcceptable(response: HttpServerResponse, msg: String) {
     response.apply {

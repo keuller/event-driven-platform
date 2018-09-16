@@ -64,13 +64,13 @@ class ProxyVerticle : PlatformVerticle() {
     private val handlerEvent = Handler<RoutingContext> { req ->
         val data = req.bodyAsJson
 
-        if (isInvalid(data)) {
+        if (isInvalidPayload(data)) {
             log.warn("Invalid payload data ${data.encode()}")
             notAcceptable(req.response(), "Invalid event payload.")
             return@Handler
         }
 
-        if (isInvalidType(data.getString("type"))) {
+        if (isInvalidType(data)) {
             log.warn("Invalid event type.")
             notAcceptable(req.response(), "Invalid event type.")
             return@Handler
