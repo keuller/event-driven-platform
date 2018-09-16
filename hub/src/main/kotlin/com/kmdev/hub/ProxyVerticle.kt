@@ -53,35 +53,33 @@ class ProxyVerticle : PlatformVerticle() {
         post("/event").handler(handlerEvent).produces(JSON_TYPE)
     }
 
-    val handlerError = Handler<RoutingContext> { req->
+    private val handlerError = Handler<RoutingContext> { req->
         req.response().statusCode = 500
         req.response().statusMessage = "Ops! Something goes wrong."
     }
 
     private val handlerIndex = Handler<RoutingContext> { req ->
-        req.response().end("Proxy!")
+        req.response().end("Hub service.")
     }
 
     private val handlerEvent = Handler<RoutingContext> { req ->
         val data = req.bodyAsJson
         if (isInvalid(data)) {
             log.warn("Invalid payload data ${data.encode()}")
-            notAcceptable(req.response())
-            req.response().endWithJson(mapOf("message" to "Invalid event payload."))
+            notAcceptable(req.response(), "Invalid event payload.")
             return@Handler
         }
 
         if (isInvalidType(data.getString("type"))) {
             log.warn("Invalid event type.")
-            notAcceptable(req.response())
-            req.response().endWithJson(mapOf("message" to "Invalid event type."))
+            notAcceptable(req.response(), "Invalid event type.")
             return@Handler
         }
 
         val topicName = "/${data.getString("type")}"
         if (!isCommand(data)) {
             connector.publish(topicName, data.encode())
-            req.response().endWithJson(mapOf("message" to "Ok"))
+            json(req.response(), mapOf("message" to "Ok"))
             return@Handler
         }
 
@@ -95,16 +93,16 @@ class ProxyVerticle : PlatformVerticle() {
                 .take(1).singleOrError()
 
         reply.doOnError { err -> fail(req.response(), err.message) }
-                .doOnSuccess { json -> json.remove("id"); req.response().endWithJson(json) }
+                .doOnSuccess { json -> json.remove("id"); req.response().endJson(json) }
                 .subscribe()
     }
 
     private val handlerHealth = Handler<RoutingContext> { req ->
         val dt = Date().toInstant().toString()
-        req.response().endWithJson(mapOf("code" to "0", "message" to "OK", "date_time" to dt))
+        req.response().endJson(mapOf("code" to "0", "status" to "OK", "date_time" to dt))
     }
 
-    fun HttpServerResponse.endWithJson(obj: Any) {
+    fun HttpServerResponse.endJson(obj: Any) {
         this.putHeader("Content-Type", JSON_TYPE).end(Json.encodePrettily(obj))
     }
 }
