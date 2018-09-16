@@ -10,6 +10,7 @@ class SecurityVerticle : PlatformVerticle() {
     private val log = LoggerFactory.getLogger(SecurityVerticle::class.java.name)
 
     private val INBOUND = "/security"
+
     private val OUTBOUND = "/outbound"
 
     override fun start(future: Future<Void>) {
@@ -23,7 +24,7 @@ class SecurityVerticle : PlatformVerticle() {
         future.complete()
     }
 
-    fun processMessage(msg: String) {
+    private fun processMessage(msg: String) {
         val data = JsonObject(msg)
         val msgId = data.getString("id")
         val cmd = data.getString("command")
@@ -34,7 +35,7 @@ class SecurityVerticle : PlatformVerticle() {
         }
     }
 
-    fun handleCommand(cmd: String, data: JsonObject): JsonObject {
+    private fun handleCommand(cmd: String, data: JsonObject): JsonObject {
         return when(cmd) {
             "auth" -> authenticate(data.getString("username"), data.getString("password"))
             "create" -> createUser(data)

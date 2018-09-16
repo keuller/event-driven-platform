@@ -8,12 +8,12 @@ val users = arrayListOf<User>()
 
 fun authenticate(user: String, pass: String): JsonObject {
     if (user.isEmpty() || pass.isEmpty()) return JsonObject().put("message", "Invalid credentials.")
-    try {
-        return users.filter { it.username.equals(user, true) && it.password.equals(pass) }
+    return try {
+        users.asSequence().filter { it.username.equals(user, true) && it.password == pass }
                 .first()
                 .toJson()
     } catch (ex: NoSuchElementException) {
-        return JsonObject().put("message", "User not found.")
+        JsonObject().put("message", "User not found.")
     }
 }
 

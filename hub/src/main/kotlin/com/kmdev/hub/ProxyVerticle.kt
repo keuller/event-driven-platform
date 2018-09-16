@@ -3,6 +3,7 @@ package com.kmdev.hub
 import com.kmdev.common.PlatformVerticle
 import com.kmdev.common.genMessageId
 import com.kmdev.common.moduleName
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import io.vertx.core.Future
@@ -64,6 +65,7 @@ class ProxyVerticle : PlatformVerticle() {
 
     private val handlerEvent = Handler<RoutingContext> { req ->
         val data = req.bodyAsJson
+
         if (isInvalid(data)) {
             log.warn("Invalid payload data ${data.encode()}")
             notAcceptable(req.response(), "Invalid event payload.")
@@ -77,12 +79,16 @@ class ProxyVerticle : PlatformVerticle() {
         }
 
         val topicName = "/${data.getString("type")}"
-        if (!isCommand(data)) {
+        if (notCommand(data)) {
             connector.publish(topicName, data.encode())
             json(req.response(), mapOf("message" to "Ok"))
             return@Handler
         }
 
+        handleCommand(topicName, data, req.response())
+    }
+
+    private fun handleCommand(topicName: String, data: JsonObject, resp: HttpServerResponse) {
         val messageId = genMessageId()
         connector.publish(topicName, data.put("id", messageId).encode())
 
@@ -92,8 +98,8 @@ class ProxyVerticle : PlatformVerticle() {
                 .subscribeOn(RxHelper.scheduler(vertx))
                 .take(1).singleOrError()
 
-        reply.doOnError { err -> fail(req.response(), err.message) }
-                .doOnSuccess { json -> json.remove("id"); req.response().endJson(json) }
+        reply.doOnError { err -> fail(resp, err.message) }
+                .doOnSuccess { json -> json.remove("id"); resp.endJson(json) }
                 .subscribe()
     }
 
