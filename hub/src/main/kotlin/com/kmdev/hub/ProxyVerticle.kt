@@ -54,7 +54,7 @@ class ProxyVerticle : PlatformVerticle() {
 
     private val handlerError = Handler<RoutingContext> { req->
         req.response().statusCode = 500
-        req.response().statusMessage = "Ops! Something goes wrong."
+        req.response().statusMessage = "Ops! Something went wrong."
     }
 
     private val handlerIndex = Handler<RoutingContext> { req ->
