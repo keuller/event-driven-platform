@@ -3,8 +3,6 @@ package com.kmdev.hub
 import com.kmdev.common.PlatformVerticle
 import com.kmdev.common.genMessageId
 import com.kmdev.common.moduleName
-import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import io.vertx.core.Future
 import io.vertx.core.Handler
