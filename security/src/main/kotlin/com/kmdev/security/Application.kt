@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
     })
 
     RxHelper.deployVerticle(vertx, SecurityVerticle())
-            .doOnError { err -> System.exit(-1) }
+            .doOnError { _ -> System.exit(-1) }
             .doOnSuccess { _ -> log.info("Security module has been started.") }
             .subscribe()
 }
