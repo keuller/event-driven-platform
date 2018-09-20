@@ -1,13 +1,12 @@
 package com.kmdev.common
 
 import io.vertx.reactivex.core.AbstractVerticle
-import java.util.function.Consumer
 
 open class PlatformVerticle : AbstractVerticle() {
 
-    internal val BROKER_HOST = (System.getenv() as Map<String, String>).getOrDefault("BROKER_HOST", "localhost")
+    val BROKER_HOST = (System.getenv() as Map<String, String>).getOrDefault("BROKER_HOST", "localhost")
 
-    internal val BROKER_PORT = (System.getenv() as Map<String, String>).getOrDefault("BROKER_PORT", "1883")
+    val BROKER_PORT = (System.getenv() as Map<String, String>).getOrDefault("BROKER_PORT", "1883")
 
     lateinit var connector: Connector
 

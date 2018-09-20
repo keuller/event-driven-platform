@@ -3,12 +3,19 @@ package com.kmdev.hub
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import io.vertx.reactivex.core.http.HttpServerResponse
+import java.util.Objects.isNull
 
 val EVENT_TYPES = listOf("monitor", "security", "processor", "exporter")
 
-fun isInvalidPayload(json: JsonObject) = json?.getString("type").isEmpty() || !json.containsKey("payload")
+fun isInvalidPayload(json: JsonObject): Boolean {
+    if (isNull(json)) return false
+    return json.getString("type").isEmpty() || !json.containsKey("payload")
+}
 
-fun notCommand(json: JsonObject) = json.getString("command").isEmpty()
+fun notCommand(json: JsonObject): Boolean {
+    if (isNull(json)) return false
+    return json.getString("command").isEmpty()
+}
 
 fun isInvalidType(json: JsonObject) = !EVENT_TYPES.contains(json.getString("type"))
 
