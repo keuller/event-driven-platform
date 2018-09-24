@@ -5,7 +5,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.slf4j.LoggerFactory
 import java.nio.charset.Charset
 import java.util.*
-import java.util.function.Consumer
 
 fun genMessageId(): String {
     val token = UUID.randomUUID().toString().split("-").last()

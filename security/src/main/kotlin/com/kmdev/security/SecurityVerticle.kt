@@ -24,7 +24,7 @@ class SecurityVerticle : PlatformVerticle() {
         future.complete()
     }
 
-    private fun processMessage(msg: String) {
+    fun processMessage(msg: String) {
         val data = JsonObject(msg)
         val msgId = data.getString("id")
         val cmd = data.getString("command")
@@ -32,15 +32,6 @@ class SecurityVerticle : PlatformVerticle() {
         if (connector.isConnected() && msgId.isNotEmpty()) {
             log.debug(result.encode())
             connector.publish(OUTBOUND, result.put("id", msgId).encode())
-        }
-    }
-
-    private fun handleCommand(cmd: String, data: JsonObject): JsonObject {
-        return when(cmd) {
-            "auth" -> authenticate(data.getString("username"), data.getString("password"))
-            "create" -> createUser(data)
-            "findAll" -> findAll()
-            else -> JsonObject().put("message", "Invalid command.")
         }
     }
 

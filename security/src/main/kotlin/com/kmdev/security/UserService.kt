@@ -4,7 +4,16 @@ import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import java.util.Objects.requireNonNull
 
-val users = arrayListOf<User>()
+internal val users = arrayListOf<User>()
+
+fun handleCommand(cmd: String, data: JsonObject): JsonObject {
+    return when(cmd) {
+        "auth" -> authenticate(data.getString("username"), data.getString("password"))
+        "create" -> createUser(data)
+        "findAll" -> findAll()
+        else -> JsonObject().put("message", "Invalid command.")
+    }
+}
 
 fun authenticate(user: String, pass: String): JsonObject {
     if (user.isEmpty() || pass.isEmpty()) return JsonObject().put("message", "Invalid credentials.")
