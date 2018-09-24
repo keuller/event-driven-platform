@@ -21,20 +21,14 @@ class SecurityVerticleTest {
         val async = ctx.async()
         RxHelper.deployVerticle(vertx, SecurityVerticle())
                 .doOnError(Throwable::printStackTrace)
-                .doOnSuccess { vid ->
-                    verticleId = vid
-                }
-                .subscribe()
-
-        Single.just("").delay(2, TimeUnit.SECONDS)
+                .doOnSuccess { vid -> verticleId = vid }
+                .map { _ -> Single.just("") }
+                .delay(2, TimeUnit.SECONDS)
                 .doOnSuccess {
-                    vertx.rxUndeploy(verticleId).subscribe()
+                    vertx.undeploy(verticleId)
                     async.complete()
                 }
                 .subscribe()
     }
 
-    @Test fun testHandleCommand() {
-
-    }
 }
