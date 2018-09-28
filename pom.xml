@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <kotlin.version>1.2.70</kotlin.version>
+        <kotlin.version>1.2.71</kotlin.version>
         <vertx.version>3.5.3</vertx.version>
     </properties>
 
