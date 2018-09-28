@@ -1,10 +1,10 @@
 ## User Module
 
-This module is demonstrate how to implement an 'Microservice' into platform and simulates some operations.
+This module is demonstrate how to implement a 'Microservice' into platform and simulates some operations.
 
 ### Authentication
 
-To authenticate an user, you must make a HTTP request using **POST** with that payload.
+To authenticate an user, you must make a HTTP request using **POST** method with this payload.
 
 ```json
 {
@@ -18,7 +18,7 @@ To authenticate an user, you must make a HTTP request using **POST** with that p
 }
 ```
 
-If the user exists in memory of this service, you must receive a reply like that:
+If the user exists in memory you must receive a reply like this:
 
 ```json
 {
@@ -30,7 +30,7 @@ If the user exists in memory of this service, you must receive a reply like that
 
 ### Finding All Users
 
-To find all users registered, you must make an HTTP request using **POST** with that payload.
+To find all users registered, you must make an HTTP request using **POST** method with this payload.
 
 ```json
 {
@@ -43,7 +43,7 @@ To find all users registered, you must make an HTTP request using **POST** with 
 
 ### Registering an User
 
-To register a new user, you must make an HTTP request using **POST** with that payload.
+To register a new user, you must make an HTTP request using **POST** method with this payload.
 
 ```json
 {
@@ -59,7 +59,7 @@ To register a new user, you must make an HTTP request using **POST** with that p
 }
 ```
 
-You must get a reply like that:
+You must get a reply like this:
 
 ```json
 {
