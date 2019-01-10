@@ -62,6 +62,11 @@ class ProxyVerticle : PlatformVerticle() {
     }
 
     private val handlerEvent = Handler<RoutingContext> { req ->
+        if(req.body.length() == 0) {
+            notAcceptable(req.response(), "Invalid event payload.")
+            return@Handler
+        }
+
         val data = req.bodyAsJson
 
         if (isInvalidPayload(data)) {
@@ -83,6 +88,7 @@ class ProxyVerticle : PlatformVerticle() {
             return@Handler
         }
 
+        log.info("Gerando comando!")
         handleCommand(topicName, data, req.response())
     }
 
